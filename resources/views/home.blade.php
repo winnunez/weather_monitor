@@ -27,6 +27,21 @@
 </select>
   </div>
   <div id="main">
-    <h1>MainTest3</h1>
+      <table cellpadding="5" border="1">
+      <thead>
+      <tr>
+          <th>Temperature</th>
+          <th>Pressure</th>
+		  <th>Wind Speed</th>
+          <th>Wind Direction</th>
+          <th>Rainfall</th>
+		  <th>Humidity</th>
+          <th>Visibility</th>
+          <th>Date</th>
+	  </tr>
+      </thead>
+          <tbody id="data-result">
+		  </tbody>
+      </table>
   </div>
 </body>
