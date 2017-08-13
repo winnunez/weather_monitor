@@ -1,9 +1,9 @@
 <!doctype html>
 <head>
   <script type="text/javascript" src="{{ URL::asset('js/MooTools-Core-1.6.0.js') }}"></script>
-  <script type="text/javascript" src="{{ URL::asset('js/MooTools-More-1.6.0.js') }}"></script>
+  <!--script type="text/javascript" src="{{ URL::asset('js/MooTools-More-1.6.0.js') }}"></script-->
   <!--script type="text/javascript" src="{{ URL::asset('js/mootools-core.js') }}"></script-->
-  <!--script type="text/javascript" src="{{ URL::asset('js/mootools-more.js') }}"></script-->
+  <script type="text/javascript" src="{{ URL::asset('js/mootools-more.js') }}"></script>
   <script type="text/javascript" src="{{ URL::asset('js/Source/Locale.en-US.DatePicker.js') }}"></script>
   <script type="text/javascript" src="{{ URL::asset('js/Source/Picker.js') }}"></script>
   <script type="text/javascript" src="{{ URL::asset('js/Source/Picker.Attach.js') }}"></script>
@@ -27,6 +27,10 @@
 </select>
   </div>
   <div id="main">
+      <span id="total-main-part"></span>
+      <span id="total-main-data"></span>
+      <button type="button" id="prev-main-button">Back</button>
+      <button type="button" id="next-main-button">Next</button>
       <table cellpadding="5" border="1">
       <thead>
       <tr>
