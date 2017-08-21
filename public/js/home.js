@@ -47,9 +47,9 @@ var DefaultView = function()
     self.totalPage         = 1;
     self.currentPage       = 1;
 
-
-
+    //sorting
     self.sortOrder         =  null;
+    self.sortDate          = 'sort-date-button';
 
     self.init = function()
     {
@@ -78,17 +78,23 @@ var DefaultView = function()
 
     self.getAjaxData = function(page, sort, callbacks)
     {
-        console.log('test');
+
+
         if (!self._request || !self._request.isRunning())
         {
-            // data = {
-            //     'email-mobile' : submitData['email-mobile'],
-            //     'SMSCSRFTOKEN' : token
-            // };
+
+            if ($(self.datePickerFrom).get('value') == "")
+                $(self.datePickerFrom).set('value',new Date().format('%Y-%m-%d'))
+
+            if ($(self.datePickerTo).get('value') == "")
+                $(self.datePickerTo).set('value',new Date().format('%Y-%m-%d'))
+
+
             arrayData = {
                 'dateFrom'          : $(self.datePickerFrom).get('value'),
                 'dateTo'            : $(self.datePickerTo).get('value'),
-                'page'              : page
+                'page'              : page,
+                'sort'              : sort
 
             };
 
@@ -138,28 +144,32 @@ var DefaultView = function()
     //Page Checking
     self.paginationChecker = function()
     {
-        //$(self.prevId).setStyle('display', 'block');
-        //$(self.nextId).setStyle('display', 'block');
+        $(self.prevId).setStyle('display', 'inline-block');
+        $(self.nextId).setStyle('display', 'inline-blockblock');
 
-        // //first check the preview button whether it will be disable or not
-        // if(self.currentPage == 1)
-        // {
-        //     $(self.prevId).addClass('disable');
-        // }
-        // else
-        // {
-        //     $(self.prevId).removeClass('disable');
-        // }
-        //
-        // //second check the next button whether it will be disable or not
-        // if(self.currentPage < self.totalPage)
-        // {
-        //     $(self.nextId).removeClass('disable');
-        // }
-        // else
-        // {
-        //     $(self.nextId).addClass('disable');
-        // }
+        //first check the preview button whether it will be disable or not
+        if(self.currentPage == 1)
+        {
+            $(self.prevId).setStyle('display', 'none');
+            //$(self.prevId).addClass('disable');
+        }
+        else
+        {
+            $(self.prevId).setStyle('display', 'inline-block');
+            //$(self.prevId).removeClass('disable');
+        }
+
+        //second check the next button whether it will be disable or not
+        if(self.currentPage < self.totalPage)
+        {
+            $(self.nextId).setStyle('display', 'inline-block');
+            //$(self.nextId).removeClass('disable');
+        }
+        else
+        {
+            $(self.nextId).setStyle('display', 'none');
+            //$(self.nextId).addClass('disable');
+        }
 
         //below will be the calcutaion and displaying for the total data results
         var start = (self.pageLimit * self.currentPage) - self.pageLimit + 1;
@@ -176,6 +186,9 @@ var DefaultView = function()
 
             //$(self.prevId).addClass('disable');
             //$(self.nextId).addClass('disable');
+
+            $(self.prevId).setStyle('display', 'none');
+            $(self.nextId).setStyle('display', 'none');
         }
     };
 
@@ -208,17 +221,27 @@ var DefaultView = function()
             timePicker: false,
             format: '%Y-%m-%d',
             positionOffset: {x: 5, y: 0},
-            pickerClass: 'datepicker_dashboard',
-            useFadeInOut: !Browser.ie
+            pickerClass: 'datepicker_vista',
+            useFadeInOut: !Browser.ie,
+            maxDate : new Date(),
+            onSelect: function(date){
+                //myHiddenField.set('value', date.format('%s'));
+                $(self.datePickerTo).set('value','');
+
+                new Picker.Date($(self.datePickerTo), {
+                    timePicker: false,
+                    format: '%Y-%m-%d',
+                    positionOffset: {x: 5, y: 0},
+                    pickerClass: 'datepicker_vista',
+                    useFadeInOut: !Browser.ie,
+                    minDate : date,
+                    maxDate: new Date(),
+                    invertAvailable : 'true'
+                });
+	        }
         });
 
-        new Picker.Date($(self.datePickerTo), {
-            timePicker: false,
-            format: '%Y-%m-%d',
-            positionOffset: {x: 5, y: 0},
-            pickerClass: 'datepicker_dashboard',
-            useFadeInOut: !Browser.ie
-        });
+
 
         $(self.searchButton).removeEvents();
         $(self.searchButton).addEvent('click', function(e)
@@ -254,6 +277,22 @@ var DefaultView = function()
                 self.getData();
 
             //}
+        });
+
+        $(self.sortDate).removeEvents();
+        $(self.sortDate).addEvent('click', function()
+        {
+            if(self.sortOrder == 'ASC')
+            {
+                self.sortOrder = 'DESC';
+                self.getData();
+            }
+            else
+            {
+                self.sortOrder = 'ASC';
+                self.getData();
+            }
+
         });
 
     };

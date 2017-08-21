@@ -10,14 +10,22 @@ class HomeController extends Controller
 
     public function getData(Request $data){
         $page = json_decode($data['page'],true);
-        $totalData = DB::table('weather_monitor')->count();
         $limit = 5;
-        $totalPage = ceil($totalData / $limit);
+        $totalData = DB::table('weather_monitor')->whereBetween(DB::raw('DATE(weather_monitor.date)'),[$data['dateFrom'],$data['dateTo']])->count();
+        $totalPage = ceil($totalData / $limit);        
         $offset = ($page - 1)  * $limit;
+        $sort = $data['sort'];
 
-        $queryData = DB::select('SELECT * FROM weather_monitor WHERE DATE(date) BETWEEN :from AND :to ORDER BY date LIMIT 5 OFFSET :offset', ['from' => $data['dateFrom'], 'to' => $data['dateTo'], 'offset' => $offset]);
+        if ($sort == 'ASC') {
+            $queryData = DB::select('SELECT * FROM weather_monitor WHERE DATE(date) BETWEEN :from AND :to ORDER BY date ASC LIMIT 5 OFFSET :offset', ['from' => $data['dateFrom'], 'to' => $data['dateTo'], 'offset' => $offset]);
+        }
+        else {
+            $queryData = DB::select('SELECT * FROM weather_monitor WHERE DATE(date) BETWEEN :from AND :to ORDER BY date DESC LIMIT 5 OFFSET :offset', ['from' => $data['dateFrom'], 'to' => $data['dateTo'], 'offset' => $offset]);
+        }
+
         $resultData = array();
         //return $queryData;
+
         foreach ($queryData as $qData) {
             $container = array(
                 'temp' => $qData->temp,
@@ -31,6 +39,7 @@ class HomeController extends Controller
             );
             array_push($resultData, $container);
         }
+
         //return $resultData;
 
         $postData = array(
