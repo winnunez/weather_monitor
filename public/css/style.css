@@ -24,3 +24,10 @@ body
 {
     float: left;
 }
+
+#container-one
+{
+    float: right;
+    width: 1265px;
+    min-height: 100%;
+}

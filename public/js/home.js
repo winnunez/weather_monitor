@@ -32,8 +32,10 @@ var DefaultView = function()
     self.datePickerTo = 'datepicker-to';
     self.viewPicker = 'view-picker';
     self.searchButton = 'search-button';
-    self.viewMain = 'main';
+    //Table
+    self.viewMain = 'main-table';
     self.viewTable = 'data-result';
+    self.emptyResultId     = 'empty-result';
 
     //pagination
     self.prevId            = 'prev-main-button';
@@ -50,6 +52,11 @@ var DefaultView = function()
     //sorting
     self.sortOrder         =  null;
     self.sortDate          = 'sort-date-button';
+    self.testPostButton    = 'test-post-button';
+
+    //Graph
+    self.viewGraph         = 'main-graph';
+    self.graphOne          = 'container-one';
 
     self.init = function()
     {
@@ -64,7 +71,6 @@ var DefaultView = function()
           self.sortOrder,
           //callbacks
           [
-            self.renderData,
             self.addEvents
           ]
         );
@@ -98,8 +104,22 @@ var DefaultView = function()
 
             };
 
-            callbacks.push(self.paginationChecker);
+            //Set what functions to use depending on view selected
+            if ($(self.viewPicker).get('value') == "graph")
+            {
+                $(self.viewMain).setStyle('display' , 'none');
+                $(self.viewGraph).setStyle('display', 'block');
+                callbacks.push(self.renderGraph);
+            }
+            else
+            {
+                $(self.viewMain).setStyle('display' , 'block');
+                $(self.viewGraph).setStyle('display', 'none');
+                callbacks.push(self.renderData);
+                callbacks.push(self.paginationChecker);
+            }
 
+            //Fetch Data from Database
             self._request = new Request.JSON(
             {
                 'url' : self.requestGetDataURL,
@@ -114,13 +134,16 @@ var DefaultView = function()
                     self.pageLimit          = data.limit;
                     self.resultData         = data.resultData;
 
-                    if(data.resultData.length)
+                    if ($(self.viewPicker).get('value') == "table")
                     {
-                        $$('#' + self.totalDataId).set('html', ' of ' + data.totalData);
-                    }
-                    else
-                    {
-                        $$('#' + self.totalDataId).set('html','');
+                        if(data.resultData.length)
+                        {
+                            $$('#' + self.totalDataId).set('html', ' of ' + data.totalData);
+                        }
+                        else
+                        {
+                            $$('#' + self.totalDataId).set('html','');
+                        }
                     }
 
                     if(callbacks)
@@ -134,7 +157,9 @@ var DefaultView = function()
                 },
                 'onError' : function(data)
                 {
+                    console.log('Fail');
                     console.log(data);
+                    self._request.stop;
                 }
                 }).send();
             }
@@ -192,29 +217,81 @@ var DefaultView = function()
         }
     };
 
+    //Render Table
     self.renderData = function()
     {
-        Array.each(self.resultData, function(val, idx)
-        {
-            var contentHTML = '<td>' + val['temp'] + '</td>'
-                            + '<td>' + val['pressure'] + '</td>'
-                            + '<td>' + val['wind_speed'] + '</td>'
-                            + '<td>' + val['wind_direction'] + '</td>'
-                            + '<td>' + val['rainfall'] + '</td>'
-                            + '<td>' + val['humidity'] + '</td>'
-                            + '<td>' + val['visibility'] + '</td>'
-                            + '<td>' + val['date'] + '</td>'
-                            //+ '<td> <a id="view_' + val['advisory_id']+ '" href="#"> View </a>' + cancel + edit + '</td>';
+        $$('#' + self.emptyResultId).dispose();
 
-            contentElem = new Element('<tr />',
+        if(self.resultData.length)
+        {
+            Array.each(self.resultData, function(val, idx)
             {
-                'id'  : '',
-                'html'  : contentHTML
+                var contentHTML = '<td>' + val['temp'] + '</td>'
+                                + '<td>' + val['pressure'] + '</td>'
+                                + '<td>' + val['wind_speed'] + '</td>'
+                                + '<td>' + val['wind_direction'] + '</td>'
+                                + '<td>' + val['rainfall'] + '</td>'
+                                + '<td>' + val['humidity'] + '</td>'
+                                + '<td>' + val['visibility'] + '</td>'
+                                + '<td>' + val['date'] + '</td>'
+                                //+ '<td> <a id="view_' + val['advisory_id']+ '" href="#"> View </a>' + cancel + edit + '</td>';
+
+                contentElem = new Element('<tr />',
+                {
+                    'id'  : '',
+                    'html'  : contentHTML
+                });
+                contentElem.inject($(self.viewTable), "bottom");
             });
-            contentElem.inject($(self.viewTable), "bottom");
-        });
+        }
+        else
+        {
+            var emptyHTML = '<td colspan="8"><center>No record found.</center></td>';
+
+            emptyElem = new Element('</tr>',
+            {
+              'id'  : self.emptyResultId,
+              'html'  : emptyHTML
+            });
+
+            emptyElem.inject($(self.viewTable), "bottom");
+        }
     };
 
+    self.renderGraph = function()
+    {
+        console.log('render Graph');
+        chart = new Highcharts.Chart({
+        chart: {
+            renderTo: self.graphOne,
+            plotBorderWidth: 1,
+            plotBorderColor: "#666"
+        },
+        xAxis: {
+            categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+            lineColor: '#666',
+            tickLength: 0,
+            tickPosition: 'inside',
+            tickmarkPlacement: 'on',
+            tickColor: '#ccc',
+            minPadding: 0,
+            maxPadding: 0
+        },
+        yAxis: {
+            min: 0,
+            minRange: 1
+        },
+        credits: {
+            enabled: false
+        },
+        series: [{
+            data: [29.9, 71.5, 106.4, 129.2, 144.0, 176.0, 135.6, 148.5, 216.4, 194.1, 95.6, 54.4]
+        }, {
+            data: [28.7, 99.5, 106.3, 992, 992,]
+        }]
+        });
+    };
+    //Add element events
     self.addEvents = function()
     {
         new Picker.Date($(self.datePickerFrom), {
@@ -226,8 +303,7 @@ var DefaultView = function()
             maxDate : new Date(),
             onSelect: function(date){
                 //myHiddenField.set('value', date.format('%s'));
-                $(self.datePickerTo).set('value','');
-
+                $(self.datePickerTo).empty();
                 new Picker.Date($(self.datePickerTo), {
                     timePicker: false,
                     format: '%Y-%m-%d',
@@ -295,12 +371,47 @@ var DefaultView = function()
 
         });
 
+        $(self.testPostButton).removeEvents();
+        $(self.testPostButton).addEvent('click', function(e)
+        {
+            e.preventDefault();
+            testData = {
+                'temp'           : '12',
+                'pressure'       : 1002,
+                'wind_speed'     : '23',
+                'wind_direction' : 'NorthEast',
+                'rainfall'       : '34',
+                'humidity'        : '90',
+                'visibility'     : '10-15'
+            };
+
+            self._request = new Request.JSON(
+            {
+                'url' : '/weathermonitor/public/postDataAndroid',
+                'method' : 'POST',
+                'data' : testData,
+            'onSuccess' : function(data)
+            {
+                console.log('Success');
+                console.log(data);
+
+            },
+            'onError' : function(data)
+            {
+                console.log('Fail');
+                console.log(data);
+                self._request.stop;
+            }
+            }).send();
+        });
+
     };
 };
 
 
 var WeatherMonitor =
 {
+
     weatherMonitorObj : null,
 
     init : function()

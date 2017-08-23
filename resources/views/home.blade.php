@@ -9,6 +9,16 @@
   <script type="text/javascript" src="{{ URL::asset('js/Source/Picker.Attach.js') }}"></script>
   <script type="text/javascript" src="{{ URL::asset('js/Source/Picker.Date.js') }}"></script>
   <script type="text/javascript" src="{{ URL::asset('js/Source/Picker.Date.Range.js') }}"></script>
+  <!--Highcharts-->
+  <script src="http://code.highcharts.com/adapters/mootools-adapter.js"></script>
+  <script src="http://code.highcharts.com/highcharts.js"></script>
+  <script src="http://code.highcharts.com/modules/exporting.js"></script>
+  <!--Styles-->
+  <link rel="stylesheet" href="{{ URL::asset('css/style.css') }}">
+  <link rel="stylesheet" href="{{ URL::asset('css/Source/datepicker_vista/datepicker_vista.css') }}">
+  <link rel="stylesheet" href="{{ URL::asset('css/Source/datepicker.css') }}">
+  <link rel="stylesheet" href="{{ URL::asset('css/jquery.jqplot.css') }}">
+  <link rel="stylesheet" href="{{ URL::asset('css/jquery.jqplot.min.css') }}">
   <link rel="stylesheet" href="{{ URL::asset('css/style.css') }}">
   <link rel="stylesheet" href="{{ URL::asset('css/Source/datepicker_vista/datepicker_vista.css') }}">
   <link rel="stylesheet" href="{{ URL::asset('css/Source/datepicker.css') }}">
@@ -25,9 +35,10 @@
       <option value="map">Map</option>
     </select>
     <button type="button" id="search-button">Search</button>
-</select>
+    <button type="button" id="test-post-button">Test Post</button>
+    </select>
   </div>
-  <div id="main">
+  <div id="main-table" style="display: none">
       <span id="total-main-part"></span>
       <span id="total-main-data"></span>
       <button type="button" id="prev-main-button">Back</button>
@@ -48,5 +59,9 @@
           <tbody id="data-result">
 		  </tbody>
       </table>
-  </div>
+   </div>
+   <div id="main-graph" style="display: none">
+       <div id="container-one"></div>
+   </div>
+
 </body>

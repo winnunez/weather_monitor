@@ -22,3 +22,4 @@
 // });
 Route::resource('/','HomeController');
 Route::get('getData', 'HomeController@getData');
+Route::post('postDataAndroid', 'HomeController@postDataAndroid');
