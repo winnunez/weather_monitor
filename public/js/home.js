@@ -388,7 +388,8 @@ var DefaultView = function()
 
             self._request = new Request.JSON(
             {
-                'url' : '/weathermonitor/public/postDataAndroid',
+                //'url' : '/weathermonitor/public/postDataAndroid',
+                'url' : '/postDataAndroid',
                 'method' : 'POST',
                 'data' : testData,
             'onSuccess' : function(data)
