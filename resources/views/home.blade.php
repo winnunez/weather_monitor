@@ -17,8 +17,6 @@
   <link rel="stylesheet" href="{{ URL::asset('css/style.css') }}">
   <link rel="stylesheet" href="{{ URL::asset('css/Source/datepicker_vista/datepicker_vista.css') }}">
   <link rel="stylesheet" href="{{ URL::asset('css/Source/datepicker.css') }}">
-  <link rel="stylesheet" href="{{ URL::asset('css/jquery.jqplot.css') }}">
-  <link rel="stylesheet" href="{{ URL::asset('css/jquery.jqplot.min.css') }}">
   <link rel="stylesheet" href="{{ URL::asset('css/style.css') }}">
   <link rel="stylesheet" href="{{ URL::asset('css/Source/datepicker_vista/datepicker_vista.css') }}">
   <link rel="stylesheet" href="{{ URL::asset('css/Source/datepicker.css') }}">
