@@ -26,7 +26,8 @@ var DefaultView = function()
 {
     var self = this;
     self._request = null;
-    self.requestGetDataURL = '/weathermonitor/public/getData';
+    self.requestGetDataURL = '/getData';
+    //self.requestGetDataURL_dev = '/weathermonitor/publicgetData';
     self.sideBar = 'sidebar';
     self.datePickerFrom = 'datepicker-from';
     self.datePickerTo = 'datepicker-to';
