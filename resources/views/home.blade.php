@@ -1,7 +1,7 @@
 <!doctype html>
 <head>
   <script type="text/javascript" src="{{ URL::asset('js/MooTools-Core-1.6.0.js') }}"></script>
-  <script type="text/javascript" src="{{ URL::asset('js/MooTools-More-1.6.0.js') }}"></script>
+  <!--script type="text/javascript" src="{{ URL::asset('js/MooTools-More-1.6.0.js') }}"></script-->
   <!--script type="text/javascript" src="{{ URL::asset('js/mootools-core.js') }}"></script-->
   <script type="text/javascript" src="{{ URL::asset('js/mootools-more.js') }}"></script>
   <script type="text/javascript" src="{{ URL::asset('js/Source/Locale.en-US.DatePicker.js') }}"></script>
@@ -14,9 +14,6 @@
   <script src="http://code.highcharts.com/highcharts.js"></script>
   <script src="http://code.highcharts.com/modules/exporting.js"></script>
   <!--Styles-->
-  <link rel="stylesheet" href="{{ URL::asset('css/style.css') }}">
-  <link rel="stylesheet" href="{{ URL::asset('css/Source/datepicker_vista/datepicker_vista.css') }}">
-  <link rel="stylesheet" href="{{ URL::asset('css/Source/datepicker.css') }}">
   <link rel="stylesheet" href="{{ URL::asset('css/style.css') }}">
   <link rel="stylesheet" href="{{ URL::asset('css/Source/datepicker_vista/datepicker_vista.css') }}">
   <link rel="stylesheet" href="{{ URL::asset('css/Source/datepicker.css') }}">
@@ -50,7 +47,6 @@
           <th>Wind Direction</th>
           <th>Rainfall</th>
 		  <th>Humidity</th>
-          <th>Visibility</th>
           <th><a id="sort-date-button" href="#">Date</a></th>
 	  </tr>
       </thead>
@@ -60,6 +56,8 @@
    </div>
    <div id="main-graph" style="display: none">
        <div id="container-one"></div>
+       <div id="container-two"></div>
+       <div id="container-three"></div>
    </div>
 
 </body>

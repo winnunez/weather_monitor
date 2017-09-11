@@ -10,7 +10,6 @@ function number_format (number, decimals, dec_point, thousands_sep)
       var k = Math.pow(10, prec);
       return '' + Math.round(n * k) / k;
     };
-  // Fix for IE parseFloat(0.55).toFixed(0) = 0;
   s = (prec ? toFixedFix(n, prec) : '' + Math.round(n)).split('.');
   if (s[0].length > 3) {
     s[0] = s[0].replace(/\B(?=(?:\d{3})+(?!\d))/g, sep);
@@ -22,20 +21,37 @@ function number_format (number, decimals, dec_point, thousands_sep)
   return s.join(dec);
 }
 
+function isValidDate (date)
+{
+  var IsoDateRe = new RegExp("^([0-9]{4})-([0-9]{2})-([0-9]{2})$");
+  var matches = IsoDateRe.exec(date);
+  if (!matches) return false;
+
+
+  var composedDate = new Date(matches[1], (matches[2] - 1), matches[3]);
+
+  return ((composedDate.getMonth() == (matches[2] - 1)) &&
+          (composedDate.getDate() == matches[3]) &&
+          (composedDate.getFullYear() == matches[1]));
+
+}
+
 var DefaultView = function()
 {
-    var self = this;
-    self._request = null;
-    self.requestGetDataURL = '/getData';
-    //self.requestGetDataURL_dev = '/weathermonitor/publicgetData';
-    self.sideBar = 'sidebar';
-    self.datePickerFrom = 'datepicker-from';
-    self.datePickerTo = 'datepicker-to';
-    self.viewPicker = 'view-picker';
-    self.searchButton = 'search-button';
+    var self               = this;
+    self._request          = null;
+    //self.requestGetDataURL_prod = '/getData';
+    //self.requestGetGraphDataURL_graph = '/getGraphData';
+    self.requestGetDataURL = '/weathermonitor/public/getData';
+    //self.requestGetGraphDataURL = '/weathermonitor/public/getGraphData';
+    self.sideBar           = 'sidebar';
+    self.datePickerFrom    = 'datepicker-from';
+    self.datePickerTo      = 'datepicker-to';
+    self.viewPicker        = 'view-picker';
+    self.searchButton      = 'search-button';
     //Table
-    self.viewMain = 'main-table';
-    self.viewTable = 'data-result';
+    self.viewMain          = 'main-table';
+    self.viewTable         = 'data-result';
     self.emptyResultId     = 'empty-result';
 
     //pagination
@@ -58,11 +74,21 @@ var DefaultView = function()
     //Graph
     self.viewGraph         = 'main-graph';
     self.graphOne          = 'container-one';
+    self.graphTwo          = 'container-two';
+    self.graphThree        = 'container-three';
+    self.graphCategory     = [];
+    self.graphTemp         = [];
+    self.graphPressure     = [];
+    self.graphWindSpeed    = [];
+    self.graphRainfall     = [];
+    self.graphHumidity     = [];
+    self.chartOne          = "";
+    self.chartTwo          = "";
+    //self.chartThree        = "";
 
     self.init = function()
     {
         self.getData();
-
     };
 
     self.getData = function()
@@ -85,15 +111,16 @@ var DefaultView = function()
 
     self.getAjaxData = function(page, sort, callbacks)
     {
-
-
         if (!self._request || !self._request.isRunning())
         {
+            if (!page)
+              page = 1;
 
-            if ($(self.datePickerFrom).get('value') == "")
+            //Check and validate date
+            if ($(self.datePickerFrom).get('value') == "" || isValidDate($(self.datePickerFrom).get('value')) == false)
                 $(self.datePickerFrom).set('value',new Date().format('%Y-%m-%d'))
 
-            if ($(self.datePickerTo).get('value') == "")
+            if ($(self.datePickerTo).get('value') == "" || isValidDate($(self.datePickerTo).get('value')) == false)
                 $(self.datePickerTo).set('value',new Date().format('%Y-%m-%d'))
 
 
@@ -105,19 +132,24 @@ var DefaultView = function()
 
             };
 
-            //Set what functions to use depending on view selected
+            //Set what functions to use depending on view selected/Validate picker value
             if ($(self.viewPicker).get('value') == "graph")
             {
                 $(self.viewMain).setStyle('display' , 'none');
                 $(self.viewGraph).setStyle('display', 'block');
+                self.requestGetDataURL = '/weathermonitor/public/getGraphData'; //_prod_ /getGraphData
                 callbacks.push(self.renderGraph);
             }
-            else
+            else if ($(self.viewPicker).get('value') == "table")
             {
                 $(self.viewMain).setStyle('display' , 'block');
                 $(self.viewGraph).setStyle('display', 'none');
                 callbacks.push(self.renderData);
                 callbacks.push(self.paginationChecker);
+            }
+            else
+            {
+                $(self.viewPicker).set('value') == "table"
             }
 
             //Fetch Data from Database
@@ -130,9 +162,13 @@ var DefaultView = function()
                 {
                     self.disposeData();
 
-                    self.currentPage        = data.page;
-                    self.totalPage          = data.totalPage;
-                    self.pageLimit          = data.limit;
+                    if ($(self.viewPicker).get('value') == "table")
+                    {
+                        self.currentPage        = data.page;
+                        self.totalPage          = data.totalPage;
+                        self.pageLimit          = data.limit;
+                    }
+
                     self.resultData         = data.resultData;
 
                     if ($(self.viewPicker).get('value') == "table")
@@ -167,7 +203,7 @@ var DefaultView = function()
 
     };
 
-    //Page Checking
+    //Page Checking - Table
     self.paginationChecker = function()
     {
         $(self.prevId).setStyle('display', 'inline-block');
@@ -233,9 +269,8 @@ var DefaultView = function()
                                 + '<td>' + val['wind_direction'] + '</td>'
                                 + '<td>' + val['rainfall'] + '</td>'
                                 + '<td>' + val['humidity'] + '</td>'
-                                + '<td>' + val['visibility'] + '</td>'
-                                + '<td>' + val['date'] + '</td>'
-                                //+ '<td> <a id="view_' + val['advisory_id']+ '" href="#"> View </a>' + cancel + edit + '</td>';
+                                + '<td>' + val['date_received'] + '</td>'
+                                //+ '<td> <a id="view_' + val['id']+ '" href="#"> View </a>' + cancel + edit + '</td>';
 
                 contentElem = new Element('<tr />',
                 {
@@ -259,17 +294,48 @@ var DefaultView = function()
         }
     };
 
+    //Render Graph
     self.renderGraph = function()
     {
-        console.log('render Graph');
-        chart = new Highcharts.Chart({
+        self.graphCategory.empty();
+        self.graphTemp.empty();
+        self.graphPressure.empty();
+        self.graphWindSpeed.empty();
+        self.graphRainfall.empty();
+        self.graphHumidity.empty();
+
+        Array.each(self.resultData, function(val, idx)
+        {
+            windData = {
+                'y'          : val['wind_speed'],
+                'direction'  : val['wind_direction']
+
+            };
+
+            self.graphCategory.push(val['date_received']);
+            self.graphTemp.push(val['temp']);
+            self.graphPressure.push(val['pressure']);
+            self.graphWindSpeed.push(windData);
+            self.graphRainfall.push(Number.from(val['rainfall']));
+            self.graphHumidity.push(val['humidity']);
+        });
+
+         console.log(self.graphCategory);
+        // console.log(self.graphPressure);
+        // console.log(self.graphWindSpeed);
+        // console.log(self.graphRainfall);
+        // console.log(self.graphHumidity);
+        self.chartOne = new Highcharts.Chart({
         chart: {
             renderTo: self.graphOne,
             plotBorderWidth: 1,
             plotBorderColor: "#666"
         },
+        title: {
+            text: 'Temp - Pressure - Wind Speed/Direction'
+        },
         xAxis: {
-            categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+            categories: self.graphCategory,//['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
             lineColor: '#666',
             tickLength: 0,
             tickPosition: 'inside',
@@ -285,13 +351,83 @@ var DefaultView = function()
         credits: {
             enabled: false
         },
+        tooltip: {
+            formatter: function() {
+                var s = '<b>' + this.x + '</b>',
+                    points = this.points,
+                    windDirectionPointer = "",
+                    counter = 0;
+
+                Array.each(this.points, function(val, idx)
+                {
+                    s += '<br/>' + val['series']['name'] + ': ' +
+                    val['y'] ;
+                    //console.log(val);
+                    if (val['point']['direction'])
+                        windDirectionPointer = points[idx].point.direction;
+                });
+
+                if (windDirectionPointer.length)
+                {
+                    s += '<br/> Wind Direction : ' +  windDirectionPointer;
+                }
+                return s;
+
+            },
+            shared: true
+        },
         series: [{
-            data: [29.9, 71.5, 106.4, 129.2, 144.0, 176.0, 135.6, 148.5, 216.4, 194.1, 95.6, 54.4]
+            name: 'Temperature',
+            data: self.graphTemp//[29.9, 71.5, 106.4, 129.2, 144.0, 176.0, 135.6, 148.5, 216.4, 194.1, 95.6, 54.4]
         }, {
-            data: [28.7, 99.5, 106.3, 992, 992,]
+            name: 'Pressure',
+            data: self.graphPressure//[28.7, 99.5, 106.3, 992, 992,]
+        }, {
+            name: 'Wind Speed',
+            data: self.graphWindSpeed
         }]
         });
+
+        self.chartTwo = new Highcharts.Chart({
+        chart: {
+            renderTo: self.graphTwo,
+            plotBorderWidth: 1,
+            plotBorderColor: "#666"
+        },
+        title: {
+            text: 'Rainfall - Humidity'
+        },
+        xAxis: {
+            categories: self.graphCategory,
+            lineColor: '#666',
+            tickLength: 0,
+            tickPosition: 'inside',
+            tickmarkPlacement: 'on',
+            tickColor: '#ccc',
+            minPadding: 0,
+            maxPadding: 0
+        },
+        yAxis: {
+            min: 0,
+            minRange: 1
+        },
+        credits: {
+            enabled: false
+        },
+        tooltip: {
+            shared: true
+        },
+        series: [{
+            name: 'Rainfall',
+            data: self.graphRainfall
+        }, {
+            name: 'Humidity',
+            data: self.graphHumidity
+        }]
+        });
+
     };
+
     //Add element events
     self.addEvents = function()
     {
@@ -304,7 +440,8 @@ var DefaultView = function()
             maxDate : new Date(),
             onSelect: function(date){
                 //myHiddenField.set('value', date.format('%s'));
-                $(self.datePickerTo).empty();
+                $(self.datePickerTo).set('value', '');
+                console.log('test1');
                 new Picker.Date($(self.datePickerTo), {
                     timePicker: false,
                     format: '%Y-%m-%d',
@@ -312,22 +449,16 @@ var DefaultView = function()
                     pickerClass: 'datepicker_vista',
                     useFadeInOut: !Browser.ie,
                     minDate : date,
-                    maxDate: new Date(),
-                    invertAvailable : 'true'
+                    maxDate: new Date()
                 });
 	        }
         });
-
-
 
         $(self.searchButton).removeEvents();
         $(self.searchButton).addEvent('click', function(e)
         {
             e.preventDefault();
-
             self.getData();
-            //$('forgot-input').setStyle('display', 'block');
-            //$('email-mobile').set('value', '');
 
         });
 
@@ -375,21 +506,25 @@ var DefaultView = function()
         $(self.testPostButton).removeEvents();
         $(self.testPostButton).addEvent('click', function(e)
         {
+
+            var now = new Date().format("%Y-%m-%d %H:%M:%S");
+            console.log(now);
             e.preventDefault();
             testData = {
-                'temp'           : '12',
+                'station_id'     : 101,
+                'temp'           : 12,
                 'pressure'       : 1002,
-                'wind_speed'     : '23',
+                'wind_speed'     : 23,
                 'wind_direction' : 'NorthEast',
                 'rainfall'       : '34',
-                'humidity'        : '90',
-                'visibility'     : '10-15'
+                'humidity'       : 90,
+                'date_received'  : new Date().format("%Y-%m-%d %H:%M:%S")
             };
 
             self._request = new Request.JSON(
             {
-                //'url' : '/weathermonitor/public/postDataAndroid',
-                'url' : '/postDataAndroid',
+                'url' : '/weathermonitor/public/postDataAndroid',
+                //'url_prod' : '/postDataAndroid',
                 'method' : 'POST',
                 'data' : testData,
             'onSuccess' : function(data)
@@ -418,6 +553,7 @@ var WeatherMonitor =
 
     init : function()
     {
+
         var self = this;
         this.initDefault();
     },
