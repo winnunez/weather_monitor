@@ -41,7 +41,7 @@ var DefaultView = function()
     var self               = this;
     self._request          = null;
     self.requestGetDataURL = '/getData';
-    //self.requestGetGraphDataURL_graph = '/getGraphData';
+    //self.requestGetGraphDataURL_prod = '/getGraphData';
     //self.requestGetDataURL_dev = '/weathermonitor/public/getData';
     //self.requestGetGraphDataURL = '/weathermonitor/public/getGraphData';
     self.sideBar           = 'sidebar';
@@ -513,7 +513,7 @@ var DefaultView = function()
             testData = {
                 'station_id'     : 101,
                 'temp'           : 12,
-                'pressure'       : 1002,
+                'pressures'       : 1002,
                 'wind_speed'     : 23,
                 'wind_direction' : 'NorthEast',
                 'rainfall'       : '34',
@@ -523,8 +523,8 @@ var DefaultView = function()
 
             self._request = new Request.JSON(
             {
-                'url' : '/weathermonitor/public/postDataAndroid',
-                //'url_prod' : '/postDataAndroid',
+                //'url_dev' : '/weathermonitor/public/postDataAndroid',
+                'url' : '/postDataAndroid',
                 'method' : 'POST',
                 'data' : testData,
             'onSuccess' : function(data)
