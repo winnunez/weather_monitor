@@ -138,7 +138,7 @@ class HomeController extends Controller
         } catch (\Exception $e) {
             //$returnData['hasError'] = true;
             //$returnData['message'] = $e;
-            $myfile = file_put_contents('/var/www/error/wm_log/error.txt', "\r\n".$e->getMessage() , FILE_APPEND | LOCK_EX);
+            $myfile = file_put_contents('/var/www/error/wm_log/'.date('Y-m-d').'-error.txt', '[.'.date('Y-m-d h:i:s')."]\r\n".$e->getMessage() , FILE_APPEND | LOCK_EX);
             return $e->getMessage();
 
         }
