@@ -12,57 +12,12 @@ html, body
     color: #080000;
 }*/
 
-@import url(https://fonts.googleapis.com/css?family=Roboto:400,500,300,700);
-body{
-  background: -webkit-linear-gradient(left, #25c481, #25b7c4);
-  background: linear-gradient(to right, #25c481, #25b7c4);
-  font-family: 'Roboto', sans-serif;
-}
-section{
-  margin: 50px;
-}
-@import "compass/css3";
 
-table {
-  font-family: 'Arial';
-  margin: 25px auto;
-  border-collapse: collapse;
-  border: 1px solid #eee;
-  border-bottom: 2px solid #00cccc;
-  box-shadow: 0px 0px 20px rgba(0,0,0,0.10),
-     0px 10px 20px rgba(0,0,0,0.05),
-     0px 20px 20px rgba(0,0,0,0.05),
-     0px 30px 20px rgba(0,0,0,0.05);
-  tr {
-     &:hover {
-      background: #f4f4f4;
-
-      td {
-        color: #555;
-      }
-    }
-  }
-  th, td {
-    color: #999;
-    border: 1px solid #eee;
-    padding: 12px 35px;
-    border-collapse: collapse;
-  }
-  th {
-    background: #00cccc;
-    color: #fff;
-    text-transform: uppercase;
-    font-size: 12px;
-    &.last {
-      border-right: none;
-    }
-  }
-}
 #sidebar
 {
     float: left;
     width: 250px;
-    height: 1250px;
+    height: 810px;
     background: #ccc;
 }
 
