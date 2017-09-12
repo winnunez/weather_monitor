@@ -40,9 +40,9 @@ var DefaultView = function()
 {
     var self               = this;
     self._request          = null;
-    //self.requestGetDataURL_prod = '/getData';
+    self.requestGetDataURL_prod = '/getData';
     //self.requestGetGraphDataURL_graph = '/getGraphData';
-    self.requestGetDataURL = '/weathermonitor/public/getData';
+    //self.requestGetDataURL = '/weathermonitor/public/getData';
     //self.requestGetGraphDataURL = '/weathermonitor/public/getGraphData';
     self.sideBar           = 'sidebar';
     self.datePickerFrom    = 'datepicker-from';
@@ -137,7 +137,7 @@ var DefaultView = function()
             {
                 $(self.viewMain).setStyle('display' , 'none');
                 $(self.viewGraph).setStyle('display', 'block');
-                self.requestGetDataURL = '/weathermonitor/public/getGraphData'; //_prod_ /getGraphData
+                self.requestGetDataURL = '/getGraphData'; //'/weathermonitor/public/getGraphData'; 
                 callbacks.push(self.renderGraph);
             }
             else if ($(self.viewPicker).get('value') == "table")
