@@ -23,5 +23,5 @@
 Route::resource('/','HomeController');
 Route::get('getData', 'HomeController@getData');
 Route::get('getGraphData', 'HomeController@getGraphData')->middleware('ajax');
-Route::get('getDataAndroid', 'HomeController@getDataAndroid')->middleware('ajax');
-Route::post('postDataAndroid', 'HomeController@postDataAndroid')->middleware('ajax');
+Route::get('getDataAndroid', 'HomeController@getDataAndroid');
+Route::post('postDataAndroid', 'HomeController@postDataAndroid');
