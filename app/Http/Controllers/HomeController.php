@@ -124,7 +124,7 @@ class HomeController extends Controller
         //(!$data['rainfall']) ? $rainfall = "0" : $rainfall = $data['rainfall'];
 
         try {
-            DB::INSERT('INSERT INTO weather_monitor (station_id,temp,pressure,wind_speed,wind_direction,rainfall,humidity,date_received) VALUES (:station_id,:temp,:pressure,:wind_speed,:wind_direction,:rainfall,:humidity,:date_received)',
+            DB::INSERT('INSERT INTO weather_monitor (station_id,temp,pressure,wind_speed,wind_direction,rainfall,humidity,date_received) VALUES (:station_id,:temp,:pressure,:wind_speed,:wind_direction,:rainfall,:humidity,FROM_UNIXTIME(:date_received))',
             [
                 'station_id' => $data['station_id'],
                 'temp' => $data['temp'],
@@ -155,10 +155,10 @@ class HomeController extends Controller
         ($this->checkDateFormat($data['dateFrom']) == true) ? $dateFrom = $data['dateFrom'] : $dateFrom = date("Y-m-d");
         ($this->checkDateFormat($data['dateTo']) == true) ? $dateTo = $data['dateTo'] : $dateTo = date("Y-m-d");
 
-        $queryData = DB::select('SELECT * FROM weather_monitor WHERE DATE(date) BETWEEN :from AND :to ORDER BY date',
+        $queryData = DB::select('SELECT * FROM weather_monitor WHERE DATE(date_received) BETWEEN :from AND :to ORDER BY date',
         [
-            'from' => $dataFrom,
-            'to' => $dataTo
+            'from' => $dateFrom,
+            'to' => $dateTo
         ]);
 
         $resultData = array();
