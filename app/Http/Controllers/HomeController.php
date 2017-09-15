@@ -123,29 +123,20 @@ class HomeController extends Controller
         $returnData = array();
         //(!$data['rainfall']) ? $rainfall = "0" : $rainfall = $data['rainfall'];
 
-        try {
-            DB::INSERT('INSERT INTO weather_monitor (station_id,temp,pressure,wind_speed,wind_direction,rainfall,humidity,date_received) VALUES (:station_id,:temp,:pressure,:wind_speed,:wind_direction,:rainfall,:humidity,FROM_UNIXTIME(:date_received))',
-            [
-                'station_id' => $data['station_id'],
-                'temp' => $data['temp'],
-                'pressure' => $data['pressure'],
-                'wind_speed' => $data['wind_speed'],
-                'wind_direction' => $data['wind_direction'],
-                'rainfall' => $data['rainfall'],
-                'humidity' => $data['humidity'],
-                'date_received' => $data['date_received']
-            ]);
-        } catch (\Exception $e) {
-            //$returnData['hasError'] = true;
-            //$returnData['message'] = $e;
-            $myfile = file_put_contents('/var/www/error/wm_log/'.date('Y-m-d').'-error.txt', '[.'.date('Y-m-d h:i:s')."]\r\n".$e->getMessage() , FILE_APPEND | LOCK_EX);
-            $returnData['hasError'] = true;
-            $returnData['message'] = $e->getMessage();
-            return $returnData;
+        $queryData =  DB::INSERT('INSERT INTO weather_monitor (station_id,temp,pressure,wind_speed,wind_direction,rainfall,humidity,date_received) VALUES (:station_id,:temp,:pressure,:wind_speed,:wind_direction,:rainfall,:humidity,FROM_UNIXTIME(:date_received))',
+        [
+            'station_id' => $data['station_id'],
+            'temp' => $data['temp'],
+            'pressures' => $data['pressure'],
+            'wind_speed' => $data['wind_speed'],
+            'wind_direction' => $data['wind_direction'],
+            'rainfall' => $data['rainfall'],
+            'humidity' => $data['humidity'],
+            'date_received' => $data['date_received']
+        ]);
 
-        }
         $returnData['hasError'] = false;
-        $returnData['message'] = "Success!";
+        $returnData['message'] = 'Success!';
         return $returnData;
 
     }
