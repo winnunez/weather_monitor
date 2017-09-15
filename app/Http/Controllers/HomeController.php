@@ -145,10 +145,10 @@ class HomeController extends Controller
         //Validation
         //($this->checkDateFormat($data['dateFrom']) == true) ? $dateFrom = $data['dateFrom'] : $dateFrom = date("Y-m-d");
         //($this->checkDateFormat($data['dateTo']) == true) ? $dateTo = $data['dateTo'] : $dateTo = date("Y-m-d");
-        $dateFrom = strtotime($data['dateFrom']);
-        $dateTo = strtotime($data['dateTo']);
+        $dateFrom = $data['dateFrom'];
+        $dateTo = $data['dateTo'];
 
-        $queryData = DB::select('SELECT * FROM weather_monitor WHERE DATE(date_received) BETWEEN FROM_UNIXTIME(:from) AND FROM_UNIXTIME(:to) ORDER BY date',
+        $queryData = DB::select('SELECT * FROM weather_monitor WHERE DATE(date_received) BETWEEN FROM_UNIXTIME(:from,"%Y-%m-%d") AND FROM_UNIXTIME(:to,"%Y-%m-%d") ORDER BY date',
         [
             'from' => $dateFrom,
             'to' => $dateTo
