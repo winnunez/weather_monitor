@@ -127,7 +127,7 @@ class HomeController extends Controller
         [
             'station_id' => $data['station_id'],
             'temp' => $data['temp'],
-            'pressures' => $data['pressure'],
+            'pressure' => $data['pressure'],
             'wind_speed' => $data['wind_speed'],
             'wind_direction' => $data['wind_direction'],
             'rainfall' => $data['rainfall'],
@@ -145,9 +145,8 @@ class HomeController extends Controller
         //Validation
         //($this->checkDateFormat($data['dateFrom']) == true) ? $dateFrom = $data['dateFrom'] : $dateFrom = date("Y-m-d");
         //($this->checkDateFormat($data['dateTo']) == true) ? $dateTo = $data['dateTo'] : $dateTo = date("Y-m-d");
-
-        $dateFrom = $data['dateFrom'];
-        $dateTo = $data['dateTo'];
+        $dateFrom = strtotime($data['dateFrom']);
+        $dateTo = strtotime($data['dateTo']);
 
         $queryData = DB::select('SELECT * FROM weather_monitor WHERE DATE(date_received) BETWEEN FROM_UNIXTIME(:from) AND FROM_UNIXTIME(:to) ORDER BY date',
         [
@@ -175,7 +174,7 @@ class HomeController extends Controller
 
         //return $resultData;
 
-        $postData = array('resultData' => $resultData);
+        $postData = array('resultData' => $resultData, 'from' => $dateFrom, 'to' => $dateTo);
         return $postData;
 
     }
