@@ -174,7 +174,7 @@ class HomeController extends Controller
 
         //return $resultData;
 
-        $postData = array('resultData' => $resultData, 'from' => $dateFrom, 'to' => $dateTo);
+        $postData = array('resultData' => $resultData, 'from' => $data);
         return $postData;
 
     }
