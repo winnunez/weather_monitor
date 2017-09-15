@@ -167,7 +167,7 @@ class HomeController extends Controller
                 'wind_direction' =>  $qData->wind_direction,
                 'rainfall' =>  $qData->rainfall,
                 'humidity' =>  $qData->humidity,
-                'data_received' =>  $qData->data_received,
+                'date_received' =>  $qData->date_received,
                 'date' =>  $qData->date
             );
             array_push($resultData, $container);
