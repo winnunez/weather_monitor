@@ -147,6 +147,7 @@ class HomeController extends Controller
         //($this->checkDateFormat($data['dateTo']) == true) ? $dateTo = $data['dateTo'] : $dateTo = date("Y-m-d");
         $dateFrom = $data['dateFrom'];
         $dateTo = $data['dateTo'];
+        file_put_contents('/var/www/error/wm_log', 'Data: '.$data.'Date From: '.$data['dateFrom'].'------ Date To: '.$data['dateTo']);
 
         $queryData = DB::select('SELECT * FROM weather_monitor WHERE DATE(date_received) BETWEEN FROM_UNIXTIME(:from,"%Y-%m-%d") AND FROM_UNIXTIME(:to,"%Y-%m-%d") ORDER BY date',
         [
