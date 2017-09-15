@@ -143,10 +143,13 @@ class HomeController extends Controller
 
     public function getDataAndroid(Request $data){
         //Validation
-        ($this->checkDateFormat($data['dateFrom']) == true) ? $dateFrom = $data['dateFrom'] : $dateFrom = date("Y-m-d");
-        ($this->checkDateFormat($data['dateTo']) == true) ? $dateTo = $data['dateTo'] : $dateTo = date("Y-m-d");
+        //($this->checkDateFormat($data['dateFrom']) == true) ? $dateFrom = $data['dateFrom'] : $dateFrom = date("Y-m-d");
+        //($this->checkDateFormat($data['dateTo']) == true) ? $dateTo = $data['dateTo'] : $dateTo = date("Y-m-d");
 
-        $queryData = DB::select('SELECT * FROM weather_monitor WHERE DATE(date_received) BETWEEN :from AND :to ORDER BY date',
+        $dateFrom = $data['dateFrom'];
+        $dateTo = $data['dateTo']);
+
+        $queryData = DB::select('SELECT * FROM weather_monitor WHERE DATE(date_received) BETWEEN FROM_UNIXTIME(:from) AND FROM_UNIXTIME(:to) ORDER BY date',
         [
             'from' => $dateFrom,
             'to' => $dateTo
