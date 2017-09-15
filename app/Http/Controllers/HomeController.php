@@ -150,8 +150,8 @@ class HomeController extends Controller
 
         $queryData = DB::select('SELECT * FROM weather_monitor WHERE DATE(date_received) BETWEEN FROM_UNIXTIME(:from,"%Y-%m-%d") AND FROM_UNIXTIME(:to,"%Y-%m-%d") ORDER BY date',
         [
-            'from' => 1451606400,
-            'to' => 1505440939
+            'from' => $data['dateFrom'],
+            'to' => $data['dateTo']
         ]);
 
         $resultData = array();
