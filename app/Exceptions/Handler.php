@@ -55,7 +55,7 @@ class Handler extends ExceptionHandler
                 $this->getExceptionHTTPStatusCode($e)
             );
         }
-        return parent::render($request, $exception);
+        return parent::render($request, $e);
     }
 
     protected function getExceptionHTTPStatusCode($e)
