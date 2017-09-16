@@ -147,7 +147,7 @@ class HomeController extends Controller
         //($this->checkDateFormat($data['dateTo']) == true) ? $dateTo = $data['dateTo'] : $dateTo = date("Y-m-d");
         $dateFrom = $data['dateFrom'];
         $dateTo = $data['dateTo'];
-        file_put_contents('/var/www/error/wm_log/logtest.txt', 'Data: '.$data.'Date From: '.$data['dateFrom'].'------ Date To: '.$data['dateTo']);
+        //file_put_contents('/var/www/error/wm_log/logtest.txt', 'Data: '.$data.'Date From: '.$data['dateFrom'].'------ Date To: '.$data['dateTo']);
 
         $queryData = DB::select('SELECT * FROM weather_monitor WHERE DATE(date_received) BETWEEN FROM_UNIXTIME(:from,"%Y-%m-%d") AND FROM_UNIXTIME(:to,"%Y-%m-%d") ORDER BY date',
         [
@@ -167,15 +167,14 @@ class HomeController extends Controller
                 'wind_direction' =>  $qData->wind_direction,
                 'rainfall' =>  $qData->rainfall,
                 'humidity' =>  $qData->humidity,
-                'date_received' =>  $qData->date_received,
-                'date' =>  $qData->date
+                'date_received' =>  strtotime($qData->date_received)
             );
             array_push($resultData, $container);
         }
 
         //return $resultData;
 
-        $postData = array('resultData' => $resultData, 'from' => $data);
+        $postData = array('resultData' => $resultData);
         return $postData;
 
     }
