@@ -514,7 +514,7 @@ var DefaultView = function()
         },
         function(chart)
         { // on complete
-            if (self.graphTemp < 1)
+            if (self.graphTemp.length < 1)
             { // check series is empty
                 text = chart.renderer.text("No Data Available").add();
                 textBBox = text.getBBox();
