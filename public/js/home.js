@@ -40,9 +40,9 @@ var DefaultView = function()
 {
     var self               = this;
     self._request          = null;
-    //self.requestGetDataURL = '/getData';
+    self.requestGetDataURL = '/getData';
     //self.requestGetGraphDataURL_prod = '/getGraphData';
-    self.requestGetDataURL = '/weathermonitor/public/getData';
+    //self.requestGetDataURL_dev = '/weathermonitor/public/getData';
     //self.requestGetGraphDataURL = '/weathermonitor/public/getGraphData';
     self.sideBar           = 'sidedrawer';
     self.showBarButton     = 'show-bar';
@@ -182,14 +182,14 @@ var DefaultView = function()
             {
                 $(self.viewMain).setStyle('display' , 'none');
                 $(self.viewGraph).setStyle('display', 'block');
-                self.requestGetDataURL = '/weathermonitor/public/getGraphData'; //'/getGraphData';
+                self.requestGetDataURL = '/getGraphData';//'/weathermonitor/public/getGraphData';
                 callbacks.push(self.renderGraph);
             }
             else if (view == 'Table')
             {
                 $(self.viewMain).setStyle('display' , 'block');
                 $(self.viewGraph).setStyle('display', 'none');
-                self.requestGetDataURL = '/weathermonitor/public/getData'; //'/getData';
+                self.requestGetDataURL = '/getData';//'/weathermonitor/public/getData';
                 callbacks.push(self.renderData);
                 callbacks.push(self.paginationChecker);
             }
