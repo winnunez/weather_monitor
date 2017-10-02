@@ -78,7 +78,7 @@ a { cursor: pointer; }
 .table-elements
 {
     display: inline-block;
-    margin-left: 100px;
+    float: right;
 }
 
 .datetime-elements
