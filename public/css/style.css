@@ -56,6 +56,7 @@ a { cursor: pointer; }
   overflow-x: hidden;
   margin-left: 0px;
   transition: margin-left 0.2s;
+  text-align:center;
 
   /* sticky bottom */
  margin-bottom: -100px;
@@ -83,7 +84,7 @@ a { cursor: pointer; }
 .datetime-elements
 {
     display: inline-block;
-    margin-left: 600px;
+    margin-left: auto;
     margin-top: 70px;
 }
 
