@@ -182,14 +182,14 @@ var DefaultView = function()
             {
                 $(self.viewMain).setStyle('display' , 'none');
                 $(self.viewGraph).setStyle('display', 'block');
-                self.requestGetDataURL = '/getGraphData'; //'/weathermonitor/public/getGraphData';
+                self.requestGetDataURL = '/getGraphData';//'/weathermonitor/public/getGraphData';
                 callbacks.push(self.renderGraph);
             }
             else if (view == 'Table')
             {
                 $(self.viewMain).setStyle('display' , 'block');
                 $(self.viewGraph).setStyle('display', 'none');
-                self.requestGetDataURL = '/getData'; //'/weathermonitor/public/getData';
+                self.requestGetDataURL = '/getData';//'/weathermonitor/public/getData';
                 callbacks.push(self.renderData);
                 callbacks.push(self.paginationChecker);
             }
@@ -734,6 +734,12 @@ var DefaultView = function()
                 // });
                 //console.log('test');
                 $(self.hideBarButton).set('text', '▶ Search');
+                height = null;
+                width = $$('div.highcharts-container')[0]['style']['width'];
+                width = width.substr(0,4);
+                // console.log(height);
+                // console.log(width);
+                self.chartOne.setSize(width.toInt() + 200, height, doAnimation = true);
 
             }
             else {
@@ -741,6 +747,12 @@ var DefaultView = function()
                 //     left:  '180px'
                 // });
                 $(self.hideBarButton).set('text', '◀ Search');
+                height = null;
+                width = $$('div.highcharts-container')[0]['style']['width'];
+                width = width.substr(0,4);
+                // console.log(height);
+                // console.log(width);
+                self.chartOne.setSize(width.toInt() - 200, height, doAnimation = true);
             }
 
 
