@@ -182,7 +182,7 @@ var DefaultView = function()
             {
                 $(self.viewMain).setStyle('display' , 'none');
                 $(self.viewGraph).setStyle('display', 'block');
-                self.requestGetDataURL = '/getDataAndroid'; //'/weathermonitor/public/getGraphData';
+                self.requestGetDataURL = '/getGraphData'; //'/weathermonitor/public/getGraphData';
                 callbacks.push(self.renderGraph);
             }
             else if (view == 'Table')
