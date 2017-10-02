@@ -44,11 +44,19 @@ var DefaultView = function()
     //self.requestGetGraphDataURL_prod = '/getGraphData';
     //self.requestGetDataURL_dev = '/weathermonitor/public/getData';
     //self.requestGetGraphDataURL = '/weathermonitor/public/getGraphData';
-    self.sideBar           = 'sidebar';
-    self.datePickerFrom    = 'datepicker-from';
-    self.datePickerTo      = 'datepicker-to';
+    self.sideBar           = 'sidedrawer';
+    self.showBarButton     = 'show-bar';
+    self.hideBarButton     = 'hide-bar';
+    self.datePicker        = 'datepicker';
+    //self.datePickerTo      = 'datepicker-to';
     self.viewPicker        = 'view-picker';
     self.searchButton      = 'search-button';
+
+    //Navbar
+    self.navTable          = 'nav-table';
+    self.navGraph          = 'nav-graph';
+    self.navMap            = 'nav-map';
+
     //Table
     self.viewMain          = 'main-table';
     self.viewTable         = 'data-result';
@@ -61,10 +69,22 @@ var DefaultView = function()
     self.totalPartId       = 'total-main-part';
     self.pageLimit         = 1;
 
+    //Date/time
+    self.dateTimePicker    = 'datetime-picker';
+    self.datePrevButton    = 'prev-date-button';
+    self.dateNextButton    = 'next-date-button';
+    self.dateTimeVal       =  null;
+    self.timeCounter       =  null;
+    //self.dateCounter       =  0;
+
+    //help
+    self.helpButton        = 'help-button';
+
     //self.search 		   = {};
     self.resultData        = [];
     self.totalPage         = 1;
     self.currentPage       = 1;
+    self.selectedView      = 'Table';
 
     //sorting
     self.sortOrder         =  null;
@@ -94,8 +114,10 @@ var DefaultView = function()
     self.getData = function()
     {
         self.getAjaxData(
+          self.selectedView,
           self.currentPage,
           self.sortOrder,
+          self.dateTimeVal,
           //callbacks
           [
             self.addEvents
@@ -109,48 +131,73 @@ var DefaultView = function()
         //$$('.' + self.emptyResultClass).dispose();
     };
 
-    self.getAjaxData = function(page, sort, callbacks)
+    self.getAjaxData = function(view, page, sort, datetime, callbacks)
     {
         if (!self._request || !self._request.isRunning())
         {
+            // var d = new Date('2017-07-07').format('%Y-%m-%d');
+            // console.log(d);
+
             if (!page)
               page = 1;
 
-            //Check and validate date
-            if ($(self.datePickerFrom).get('value') == "" || isValidDate($(self.datePickerFrom).get('value')) == false)
-                $(self.datePickerFrom).set('value',new Date().format('%Y-%m-%d'))
+            if (datetime == null) // First page call
+            {
+                //Check and validate date
+                if ($(self.datePicker).get('value') == "" || isValidDate($(self.datePicker).get('value')) == false)
+                    $(self.datePicker).set('value',new Date().format('%Y-%m-%d'))
 
-            if ($(self.datePickerTo).get('value') == "" || isValidDate($(self.datePickerTo).get('value')) == false)
-                $(self.datePickerTo).set('value',new Date().format('%Y-%m-%d'))
+                datefrom = $(self.datePicker).get('value') + ' 00:00:00';
+                dateto = $(self.datePicker).get('value') + ' 23:59:59';
+                console.log('first call');
+                self.dateTimeVal = $(self.datePicker).get('value');
+            }
+            else if (datetime.length == 10)
+            {
+                datefrom = datetime + ' 00:00:00';
+                dateto = datetime + ' 23:59:59';
+                console.log('prev/next' + datetime);
+            }
+            else
+            {
+                //Format date to YYYY-MM-DD HH:MM:SS
+                dateto = datetime;
+                d = datetime.substring(0,10);
+                datefrom = d + ' 00:00:00';
+                console.log('timepicker' + datetime);
+            }
+
 
 
             arrayData = {
-                'dateFrom'          : $(self.datePickerFrom).get('value'),
-                'dateTo'            : $(self.datePickerTo).get('value'),
+                'dateFrom'          : datefrom,
+                'dateTo'            : dateto,
                 'page'              : page,
                 'sort'              : sort
 
             };
 
-            //Set what functions to use depending on view selected/Validate picker value
-            if ($(self.viewPicker).get('value') == "graph")
+            //Set View
+            if (view == 'Graph')//$(self.viewPicker).get('value') == "graph"
             {
                 $(self.viewMain).setStyle('display' , 'none');
                 $(self.viewGraph).setStyle('display', 'block');
-                self.requestGetDataURL = '/getGraphData'; //'/weathermonitor/public/getGraphData';
+                self.requestGetDataURL = '/getDataAndroid'; //'/weathermonitor/public/getGraphData';
                 callbacks.push(self.renderGraph);
             }
-            else if ($(self.viewPicker).get('value') == "table")
+            else if (view == 'Table')
             {
                 $(self.viewMain).setStyle('display' , 'block');
                 $(self.viewGraph).setStyle('display', 'none');
+                self.requestGetDataURL = '/getData'; //'/weathermonitor/public/getData';
                 callbacks.push(self.renderData);
                 callbacks.push(self.paginationChecker);
             }
             else
             {
-                $(self.viewPicker).set('value') == "table"
+
             }
+
 
             //Fetch Data from Database
             self._request = new Request.JSON(
@@ -162,7 +209,7 @@ var DefaultView = function()
                 {
                     self.disposeData();
 
-                    if ($(self.viewPicker).get('value') == "table")
+                    if (view == 'Table')
                     {
                         self.currentPage        = data.page;
                         self.totalPage          = data.totalPage;
@@ -171,7 +218,7 @@ var DefaultView = function()
 
                     self.resultData         = data.resultData;
 
-                    if ($(self.viewPicker).get('value') == "table")
+                    if (view == 'Table')
                     {
                         if(data.resultData.length)
                         {
@@ -209,31 +256,27 @@ var DefaultView = function()
         $(self.prevId).setStyle('display', 'inline-block');
         $(self.nextId).setStyle('display', 'inline-blockblock');
 
-        //first check the preview button whether it will be disable or not
+        //Check the preview button whether it will be disable or not
         if(self.currentPage == 1)
         {
             $(self.prevId).setStyle('display', 'none');
-            //$(self.prevId).addClass('disable');
         }
         else
         {
             $(self.prevId).setStyle('display', 'inline-block');
-            //$(self.prevId).removeClass('disable');
         }
 
-        //second check the next button whether it will be disable or not
+        //Check the next button whether it will be disable or not
         if(self.currentPage < self.totalPage)
         {
             $(self.nextId).setStyle('display', 'inline-block');
-            //$(self.nextId).removeClass('disable');
         }
         else
         {
             $(self.nextId).setStyle('display', 'none');
-            //$(self.nextId).addClass('disable');
         }
 
-        //below will be the calcutaion and displaying for the total data results
+        //Below will be the calcutaion and displaying for the total data results
         var start = (self.pageLimit * self.currentPage) - self.pageLimit + 1;
         var end   = (start + self.resultData.length) - 1;
 
@@ -257,7 +300,47 @@ var DefaultView = function()
     //Render Table
     self.renderData = function()
     {
-        $$('#' + self.emptyResultId).dispose();
+        // Build the option dialog
+        //var selectList = $('#selectDropdown');
+        // var curr_date = d.getDate();
+        // var curr_month = d.getMonth() + 1;
+        // var curr_year = d.getFullYear();'
+        // if (dat)
+        console.log(self.dateTimeVal);
+
+
+        var d = new Date(self.dateTimeVal).format("%Y-%m-%d");
+
+
+        $(self.dateTimePicker).empty();
+        var newElement =  new Element('option');
+        newElement.inject($(self.dateTimePicker));
+        newElement.setProperty('value', d);
+        newElement.appendText(d);
+
+        var x = 1;
+
+        for(var i =0; i < 24; i++)
+        {
+            var hour = ((i + 12) % 12 + 1);
+            var a = i > 11 ? "pm" : "am";
+            var ms = x == 24 ? ':59:59' : ':00:00';
+            var hhr = x == 24 ? 23 : x++;
+            var newElement =  new Element('option');
+            newElement.inject($(self.dateTimePicker));
+            newElement.setProperty('id', i);
+            newElement.setProperty('value', d + ' ' + hhr + ms);
+            if (self.timeCounter == i)
+            {
+                newElement.setAttribute('selected','selected');
+            }
+            newElement.appendText( d + ' ' + hour + ':00' + a);
+        }
+
+        // var d = new Date().getHours();
+        // var a = i > 11 ? "pm" : "am";
+        // var hour = ((d + 11) % 12 + 1);
+        // $(self.dateTimePicker).val(hour + ':00 ' + a);
 
         if(self.resultData.length)
         {
@@ -304,6 +387,35 @@ var DefaultView = function()
         self.graphRainfall.empty();
         self.graphHumidity.empty();
 
+
+        var d = new Date(self.dateTimeVal).format("%Y-%m-%d");
+
+
+        $(self.dateTimePicker).empty();
+        var newElement =  new Element('option');
+        newElement.inject($(self.dateTimePicker));
+        newElement.setProperty('value', d);
+        newElement.appendText(d);
+
+        var x = 1;
+
+        for(var i =0; i < 24; i++)
+        {
+            var hour = ((i + 12) % 12 + 1);
+            var a = i > 11 ? "pm" : "am";
+            var ms = x == 24 ? ':59:59' : ':00:00';
+            var hhr = x == 24 ? 23 : x++;
+            var newElement =  new Element('option');
+            newElement.inject($(self.dateTimePicker));
+            newElement.setProperty('id', i);
+            newElement.setProperty('value', d + ' ' + hhr + ms);
+            if (self.timeCounter == i)
+            {
+                newElement.setAttribute('selected','selected');
+            }
+            newElement.appendText( d + ' ' + hour + ':00' + a);
+        }
+
         Array.each(self.resultData, function(val, idx)
         {
             windData = {
@@ -320,7 +432,7 @@ var DefaultView = function()
             self.graphHumidity.push(val['humidity']);
         });
 
-         console.log(self.graphCategory);
+        // console.log(self.graphCategory);
         // console.log(self.graphPressure);
         // console.log(self.graphWindSpeed);
         // console.log(self.graphRainfall);
@@ -332,7 +444,7 @@ var DefaultView = function()
             plotBorderColor: "#666"
         },
         title: {
-            text: 'Temp - Pressure - Wind Speed/Direction'
+            text: 'Weather Graph'
         },
         xAxis: {
             categories: self.graphCategory,//['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
@@ -345,8 +457,14 @@ var DefaultView = function()
             maxPadding: 0
         },
         yAxis: {
-            min: 0,
-            minRange: 1
+            title: {
+                text: null
+            },
+            labels: {
+                enabled: false
+            },
+            // min: 0,
+            // minRange: 1,
         },
         credits: {
             enabled: false
@@ -362,12 +480,13 @@ var DefaultView = function()
                 {
                     s += '<br/>' + val['series']['name'] + ': ' +
                     val['y'] ;
-                    //console.log(val);
+
                     if (val['point']['direction'])
                         windDirectionPointer = points[idx].point.direction;
+
                 });
 
-                if (windDirectionPointer.length)
+                if (windDirectionPointer)
                 {
                     s += '<br/> Wind Direction : ' +  windDirectionPointer;
                 }
@@ -383,81 +502,130 @@ var DefaultView = function()
             name: 'Pressure',
             data: self.graphPressure//[28.7, 99.5, 106.3, 992, 992,]
         }, {
-            name: 'Wind Speed',
-            data: self.graphWindSpeed
-        }]
-        });
-
-        self.chartTwo = new Highcharts.Chart({
-        chart: {
-            renderTo: self.graphTwo,
-            plotBorderWidth: 1,
-            plotBorderColor: "#666"
-        },
-        title: {
-            text: 'Rainfall - Humidity'
-        },
-        xAxis: {
-            categories: self.graphCategory,
-            lineColor: '#666',
-            tickLength: 0,
-            tickPosition: 'inside',
-            tickmarkPlacement: 'on',
-            tickColor: '#ccc',
-            minPadding: 0,
-            maxPadding: 0
-        },
-        yAxis: {
-            min: 0,
-            minRange: 1
-        },
-        credits: {
-            enabled: false
-        },
-        tooltip: {
-            shared: true
-        },
-        series: [{
             name: 'Rainfall',
             data: self.graphRainfall
         }, {
             name: 'Humidity',
             data: self.graphHumidity
+        }, {
+            name: 'Wind Speed',
+            data: self.graphWindSpeed
         }]
-        });
+        },
+        function(chart)
+        { // on complete
+            if (self.graphTemp < 1)
+            { // check series is empty
+                text = chart.renderer.text("No Data Available").add();
+                textBBox = text.getBBox();
+                x = chart.plotLeft + (chart.plotWidth  * 0.5) - (textBBox.width  * 0.5);
+                y = chart.plotTop  + (chart.plotHeight * 0.5) - (textBBox.height * 0.25);
+                text.attr({x: x, y: y}).css({color: '#4572A7',fontSize: '16px'});
+            }
 
+        }
+        );
     };
+
+    //Help modal
+    self.startHelpModal = function()
+    {
+        var modal =  new Element('div');
+        var modalEl = document.createElement('div');
+        modal.setStyle('width','80%');
+        modal.setStyle('height','80%');
+        modal.setStyle('margin','100px auto');
+        modal.setStyle('backgroundColor','#fff');
+        // modalEl.style.width = '400px';
+        // modalEl.style.height = '300px';
+        // modalEl.style.margin = '100px auto';
+        // modalEl.style.backgroundColor = '#fff';
+        console.log(modal);
+        console.log(modalEl);
+        // show modal
+        mui.overlay('on', modal);
+    }
 
     //Add element events
     self.addEvents = function()
     {
-        new Picker.Date($(self.datePickerFrom), {
+        new Picker.Date($(self.datePicker), {
             timePicker: false,
             format: '%Y-%m-%d',
             positionOffset: {x: 5, y: 0},
             pickerClass: 'datepicker_vista',
             useFadeInOut: !Browser.ie,
-            maxDate : new Date(),
-            onSelect: function(date){
-                //myHiddenField.set('value', date.format('%s'));
-                $(self.datePickerTo).set('value', '');
-                console.log('test1');
-                new Picker.Date($(self.datePickerTo), {
-                    timePicker: false,
-                    format: '%Y-%m-%d',
-                    positionOffset: {x: 5, y: 0},
-                    pickerClass: 'datepicker_vista',
-                    useFadeInOut: !Browser.ie,
-                    minDate : date,
-                    maxDate: new Date()
-                });
-	        }
+            maxDate : new Date()
+            //onSelect: function(date){
+            //     //myHiddenField.set('value', date.format('%s'));
+            //     $(self.datePickerTo).set('value', '');
+            //     console.log('test1');
+            //     new Picker.Date($(self.datePickerTo), {
+            //         timePicker: false,
+            //         format: '%Y-%m-%d',
+            //         positionOffset: {x: 5, y: 0},
+            //         pickerClass: 'datepicker_vista',
+            //         useFadeInOut: !Browser.ie,
+            //         minDate : date,
+            //         maxDate: new Date()
+            //     });
+	        // }
+        });
+
+        $(self.helpButton).removeEvents();
+        $(self.helpButton).addEvent('click', function(e)
+        {
+            e.preventDefault();
+            self.startHelpModal();
+        });
+
+        $(self.datePrevButton).removeEvents();
+        $(self.datePrevButton).addEvent('click',function(e)
+        {
+            e.preventDefault();
+            self.timeCounter = null;
+            self.dateCounter++;
+            //console.log('dataTimeVal' + self.dateTimeVal)
+            var d = new Date(self.dateTimeVal).decrement();
+            self.dateTimeVal = d.format("%Y-%m-%d");
+            $(self.datePicker).set('value',new Date(self.dateTimeVal).format('%Y-%m-%d'));
+            //console.log(d);
+            self.getData();
+        });
+
+
+        $(self.dateNextButton).removeEvents();
+        $(self.dateNextButton).addEvent('click',function(e)
+        {
+            e.preventDefault();
+            //console.log('dataTimeVal' + self.dateTimeVal)
+            self.timeCounter = null;
+            self.dateCounter--;
+            var d = new Date(self.dateTimeVal).increment();
+            //d.setDate(d.getDate() + 1);
+            self.dateTimeVal = d.format("%Y-%m-%d");
+            $(self.datePicker).set('value',new Date(self.dateTimeVal).format('%Y-%m-%d'));
+            self.getData();
+        });
+
+        $(self.dateTimePicker).removeEvents();
+        $(self.dateTimePicker).addEvent('change',function(e)
+        {
+            e.preventDefault();
+            self.currentPage = 1;
+            $(self.datePicker).set('value',new Date(self.dateTimeVal).format('%Y-%m-%d'))
+            self.dateTimeVal = this.get('value');
+            self.timeCounter = this.getSelected()[0].get('id');
+            self.getData();
         });
 
         $(self.searchButton).removeEvents();
         $(self.searchButton).addEvent('click', function(e)
         {
             e.preventDefault();
+            self.dateTimeVal = $(self.datePicker).get('value');
+            self.dateCounter = 0;
+            self.timeCounter = null;
             self.getData();
 
         });
@@ -503,6 +671,81 @@ var DefaultView = function()
 
         });
 
+        $(self.navTable).removeEvents();
+        $(self.navTable).addEvent('click', function(e)
+        {
+            e.preventDefault();
+            self.selectedView = 'Table';
+            console.log(self.selectedView);
+            //if(!$(self.nextId).hasClass('disable'))
+            //{
+            self.getData();
+
+            //}
+        });
+
+        $(self.navGraph).removeEvents();
+        $(self.navGraph).addEvent('click', function(e)
+        {
+            e.preventDefault();
+            self.selectedView = 'Graph';
+            console.log(self.selectedView);
+            //if(!$(self.nextId).hasClass('disable'))
+            //{
+             self.getData();
+
+            //}
+        });
+
+        $(self.navMap).removeEvents();
+        $(self.navMap).addEvent('click', function(e)
+        {
+            e.preventDefault();
+            self.selectedView = 'Map';
+            //if(!$(self.nextId).hasClass('disable'))
+            //{
+                self.getData();
+
+            //}
+        });
+
+        $(self.showBarButton).removeEvents();
+        $(self.showBarButton).addEvent('click', function(e)
+        {
+            $(self.showBarButton).setStyle('display', 'none');
+            $(self.hideBarButton).setStyle('display', 'inline-block');
+
+
+            console.log('test show');
+        });
+
+        $(self.hideBarButton).removeEvents();
+        $(self.hideBarButton).addEvent('click', function(e)
+        {
+            //$(self.hideBarButton).setStyle('display', 'none');
+            //console.log($(document.body).hasClass('hide-sidedrawer'));
+            //$(self.showBarButton).setStyle('display', 'inline-block');
+            $(document.body).toggleClass('hide-sidedrawer');
+            if (document.body.hasClass('hide-sidedrawer'))
+            {
+                // $(self.viewMain).getElement('.mui-table').setStyles({
+                //
+                //     left:  '180px'
+                // });
+                //console.log('test');
+                $(self.hideBarButton).set('text', '▶ Search');
+
+            }
+            else {
+                // $(self.viewMain).getElement('.mui-table').setStyles({
+                //     left:  '180px'
+                // });
+                $(self.hideBarButton).set('text', '◀ Search');
+            }
+
+
+        });
+
         $(self.testPostButton).removeEvents();
         $(self.testPostButton).addEvent('click', function(e)
         {
@@ -513,18 +756,19 @@ var DefaultView = function()
             testData = {
                 'station_id'     : 101,
                 'temp'           : 12,
-                'pressures'       : 1002,
+                'pressure'       : 1002,
                 'wind_speed'     : 23,
-                'wind_direction' : 'NorthEast',
-                'rainfall'       : '34',
+                'wind_direction' : 180,
+                'rainfall'       : 34,
                 'humidity'       : 90,
-                'date_received'  : new Date().format("%Y-%m-%d %H:%M:%S")
+                'date_received'  : 1505363312
             };
 
             self._request = new Request.JSON(
             {
-                //'url_dev' : '/weathermonitor/public/postDataAndroid',
-                'url' : '/postDataAndroid',
+                'url' : 'http://52.65.243.126/postDataAndroid',
+                //'url' : '/postDataAndroid',
+                //'url' : '/weathermonitor/public/postDataAndroid',
                 'method' : 'POST',
                 'data' : testData,
             'onSuccess' : function(data)

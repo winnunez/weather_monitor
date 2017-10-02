@@ -19,8 +19,10 @@ class HomeController extends Controller
     public function getData(Request $data){
         //Validation
         (gettype(json_decode($data['page'],true)) == "integer") ? $page = json_decode($data['page'],true) : $page = 1;
-        ($this->checkDateFormat($data['dateFrom']) == true) ? $dateFrom = $data['dateFrom'] : $dateFrom = date("Y-m-d");
-        ($this->checkDateFormat($data['dateTo']) == true) ? $dateTo = $data['dateTo'] : $dateTo = date("Y-m-d");
+        //($this->checkDateFormat($data['dateFrom']) == true) ? $dateFrom = $data['dateFrom'] : $dateFrom = '2017-09-14';
+        //($this->checkDateFormat($data['dateTo']) == true) ? $dateTo = $data['dateTo'] : $dateTo ='2017-09-14';
+        $dateFrom = $data['dateFrom'];
+        $dateTo = $data['dateTo'];
 
         $totalData = DB::table('weather_monitor')->whereBetween(DB::raw('DATE(weather_monitor.date_received)'),[$dateFrom,$dateTo])->count();
         $limit = 5;
@@ -29,7 +31,7 @@ class HomeController extends Controller
         $sort = $data['sort'];
 
         if ($sort == 'ASC') {
-            $queryData = DB::select('SELECT * FROM weather_monitor WHERE DATE(date_received) BETWEEN :from AND :to ORDER BY date_received ASC LIMIT 5 OFFSET :offset',
+            $queryData = DB::select('SELECT * FROM weather_monitor WHERE date_received BETWEEN :from AND :to ORDER BY date_received ASC LIMIT 5 OFFSET :offset',
             [
                 'from' => $dateFrom,
                 'to' => $dateTo,
@@ -37,7 +39,7 @@ class HomeController extends Controller
             ]);
         }
         else if ($sort == "DESC"){
-            $queryData = DB::select('SELECT * FROM weather_monitor WHERE DATE(date_received) BETWEEN :from AND :to ORDER BY date_received DESC LIMIT 5 OFFSET :offset',
+            $queryData = DB::select('SELECT * FROM weather_monitor WHERE date_received BETWEEN :from AND :to ORDER BY date_received DESC LIMIT 5 OFFSET :offset',
             [
                 'from' => $dateFrom,
                 'to' => $dateTo,
@@ -45,7 +47,7 @@ class HomeController extends Controller
             ]);
         }
         else {
-            $queryData = DB::select('SELECT * FROM weather_monitor WHERE DATE(date_received) BETWEEN :from AND :to ORDER BY date_received ASC LIMIT 5 OFFSET :offset',
+            $queryData = DB::select('SELECT * FROM weather_monitor WHERE date_received BETWEEN :from AND :to ORDER BY date_received ASC LIMIT 5 OFFSET :offset',
             [
                 'from' => $dateFrom,
                 'to' => $dateTo,
@@ -85,13 +87,16 @@ class HomeController extends Controller
 
     public function getGraphData(Request $data){
         //Validation
-        ($this->checkDateFormat($data['dateFrom']) == true) ? $dateFrom = $data['dateFrom'] : $dateFrom = date("Y-m-d");
-        ($this->checkDateFormat($data['dateTo']) == true) ? $dateTo = $data['dateTo'] : $dateTo = date("Y-m-d");
+        //($this->checkDateFormat($data['date']) == true) ? $date = $data['date'] : $date = date("Y-m-d");
+        //($this->checkDateFormat($data['dateTo']) == true) ? $dateTo = $data['dateTo'] : $dateTo = date("Y-m-d");
+        $dateFrom = $data['dateFrom'];
+        $dateTo = $data['dateTo'];
 
-        $queryData = DB::select('SELECT * FROM weather_monitor WHERE DATE(date_received) BETWEEN :from AND :to ORDER BY date_received',
+        $queryData = DB::select('SELECT * FROM weather_monitor WHERE date_received BETWEEN :from AND :to ORDER BY date_received',
         [
             'from' => $dateFrom,
             'to' => $dateTo
+
         ]);
 
         $resultData = array();
